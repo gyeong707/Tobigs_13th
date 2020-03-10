@@ -23,7 +23,8 @@ class TwoLayerNet():
          output_size: 클래스 개수 - C
 
          """
-
+        
+        # 사용될 weight와 bias들을 랜덤으로 초기화해주기
          self.params = {}
          self.params["W1"] = std * np.random.randn(input_size, hidden_size)
          self.params["b1"] = np.random.randn(hidden_size)
@@ -46,21 +47,24 @@ class TwoLayerNet():
 
         W1, b1 = self.params["W1"], self.params["b1"]
         W2, b2 = self.params["W2"], self.params["b2"]
-        N, D = X.shape
+        N, D = X.shape 
+        #N은 총 데이터의 개수, D는 feature 개수 
 
         # 여기에 p를 구하는 작업을 수행하세요.
-
         h = np.dot(X, W1) + b1
         a = np.maximum(0, h)
         o = np.dot(a, W2) + b2
         p = np.exp(o)/np.sum(np.exp(o),axis=1).reshape(-1,1)
 
-        if y is None:
+        if y is None: #Y가 없다 = 역전파! 따라서 중간 과정을 반환하여 역전파 시 이용, 이때는 따로 LOSS를 구하지 않고 여기서 함수 종료
             return p, a
         
+        
+        #Y가 있다 = 순전파이기 때문에 주어진 weight와 bias를 가지고 순전파를 진행하여 Loss 생성
         # 여기에 Loss를 구하는 작업을 수행하세요.
         Loss = 0
         
+        #크로스 엔트로피 공식에 따라 lOSS 계산
         for i in range(y.shape[0]): #행
             for j in range(p.shape[1]): #열
                 if y[i] == j:
@@ -88,28 +92,34 @@ class TwoLayerNet():
         N = X.shape[0] # 데이터 개수
         grads = {}
 
+        #역전파에 이용할 중간 값들을 forward로부터 반환받음.
         p, a = self.forward(X)
 
         # 여기에 파라미터에 대한 미분을 저장하세요.
 
+        
         dp = p
         for i in range(p.shape[0]):
             for j in range(p.shape[1]):
                 if(j==y[i]):
                     dp[i][j]-=1
-          # p-y
+        # Softmax 미분 값, p-y
         
         da = np.heaviside(a,0)
-
+        # Relu를 미분하면 계단 함수처럼 생겼다 그리고 heaviside는 계단함수이다
+        
+        
+        #가중치를 업데이트 합시다, 풀이과정은 pdf에 필기로 첨부해놓았습니다
         grads["W2"] = np.dot(a.T, dp)
-        grads["b2"] = np.sum(dp, aixs=0)
+        grads["b2"] = np.sum(dp, axis=0)
         grads["W1"] = np.dot(X.T, da*np.dot(dp, W2.T))
-        grads["b1"] = np.sum(da*np.dot(dp,W2.T), aixs=0)
+        grads["b1"] = np.sum(da*np.dot(dp,W2.T), axis=0)
 
         self.params["W2"] -= learning_rate * grads["W2"]
         self.params["b2"] -= learning_rate * grads["b2"]
         self.params["W1"] -= learning_rate * grads["W1"]
         self.params["b1"] -= learning_rate * grads["b1"]
+
 
     def accuracy(self, X, y):
 

@@ -113,11 +113,11 @@ class TwoLayerNet():
         
         
         grads["W3"] = np.dot(a2.T, dp)
-        grads["b3"] = np.sum(dp, aixs=0)
+        grads["b3"] = np.sum(dp, axis=0)
         grads["W2"] = np.dot(a.T, da2*np.dot(dp, W3.T))
         grads["b2"] = np.sum(da2*np.dot(dp,W3.T), axis=0)
         grads["W1"] = np.dot(X.T, da*np.dot(da2*np.dot(dp, W3.T),W2.T))
-        grads["b1"] = np.sum(da*np.dot(da2*np.dot(dp, W3.T),W2.T), aixs=0)
+        grads["b1"] = np.sum(da*np.dot(da2*np.dot(dp, W3.T),W2.T), axis=0)
         
         self.params["W3"] -= learning_rate * grads["W3"]
         self.params["b3"] -= learning_rate * grads["b3"]
